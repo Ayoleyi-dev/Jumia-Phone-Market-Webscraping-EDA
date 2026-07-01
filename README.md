@@ -1,6 +1,6 @@
 # Jumia Nigeria: Phone Market Web Scraping & EDA
 
-![Dashboard Screenshot](Jumia_Dashboard_Screenshot.png)
+![Dashboard Screenshot](Market_Analysis_Dashboard.png)
 
 ## Overview
 This project involves the automated extraction of real-time mobile phone product data from Jumia Nigeria. The objective was to scrape raw e-commerce data, clean and format it using Python, and perform Exploratory Data Analysis (EDA) to uncover market trends, pricing strategies, and brand distribution.
