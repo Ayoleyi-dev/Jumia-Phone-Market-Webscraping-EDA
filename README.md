@@ -1,59 +1,26 @@
-Jumia Phones Web Scraping & EDA
+# Jumia Nigeria: Phone Market Web Scraping & EDA
 
-CodeAlpha Data Analytics Internship — Task 1
+![Dashboard Screenshot](Jumia_Dashboard_Screenshot.png)
 
-This project involves scraping real phone product data from Jumia Nigeria, cleaning it using Python, performing Exploratory Data Analysis (EDA), and creating visualizations to reveal pricing, brand distribution, discounts, and customer ratings.
+## Overview
+This project involves the automated extraction of real-time mobile phone product data from Jumia Nigeria. The objective was to scrape raw e-commerce data, clean and format it using Python, and perform Exploratory Data Analysis (EDA) to uncover market trends, pricing strategies, and brand distribution.
 
-🔗 Dataset Source (Real Data)
+## Dataset Source
+All data was extracted directly from the [Jumia Nigeria Android Phones Category](https://www.jumia.com.ng/android-phones/).
+The resulting dataset (`jumia_phones_final.csv`) includes:
+* Phone Name & Brand
+* Current Price & Old Price
+* Calculated Discount Percentage
+* Customer Rating & Review Count
+* Store Type (Official vs. Third-Party)
 
-All phone data was extracted directly from:
-👉[ https://www.jumia.com.ng/phones-tablets/
-](https://www.jumia.com.ng/android-phones/)
-The dataset includes:
+## Technical Stack
+* **Language:** Python
+* **Web Scraping:** BeautifulSoup4, Requests
+* **Data Manipulation:** Pandas
+* **Data Visualization:** Matplotlib, Seaborn
 
-Phone Name
-
-Brand
-
-Price
-
-Old Price
-
-Discount Percentage
-
-Rating
-
-Reviews Count
-
-Product Page Link
-
-🧰 Tools & Technologies
-Tool	Purpose
-Python	Main scripting
-BeautifulSoup4	Web scraping
-Requests	HTTP requests
-Pandas	Cleaning & EDA
-Matplotlib/Seaborn	Visualizations
-Jupyter Notebook	Analysis
-📊 Key Insights
-✔ 1. Price Distribution
-
-Most phones fall within ₦70,000 – ₦200,000, with premium brands like Samsung and iPhone being the most expensive.
-
-✔ 2. Brand Analysis
-
-The most common brands include:
-
-Xaiomi
-
-Infinix
-
-Samsung
-
-✔ 3. Discount Patterns
-
-Typical discounts range from 5% - 20%, mostly on older models.
-
-✔ 4. Rating Insights
-
-Ratings do not strongly correlate with price — several budget phones still achieve ratings above 4.0.# CodeAlpha_jumia_webscraping
+## Key Insights
+1. **Price & Brand Dominance:** Samsung dominates the listing volume, but premium brands like Xiaomi and Oppo command higher average sales prices compared to budget brands like FreeYond and Itel.
+2. **Discount Strategies:** The highest average discounts are consistently offered on lesser-known or older models (e.g., FreeYond at ~46%, Agm at ~44%).
+3. **Inventory Share:** Across all top brands, third-party sellers heavily outweigh official Jumia store listings, indicating a highly decentralized seller market.
