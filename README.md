@@ -1,129 +1,42 @@
-# Jumia Nigeria Smartphone Market Intelligence Pipeline
+# Jumia Nigeria Smartphone Market Analysis
 
-A reproducible analytics project for collecting, cleaning, validating, analyzing, and reporting on smartphone listings from Jumia Nigeria.
+I built this project to collect smartphone listings from Jumia Nigeria and use them for a practical market analysis.
 
-## Executive Summary
+It started as a web-scraping and EDA project, but while reviewing it I found several problems in the original data — especially with review counts, product links, duplicate listings and non-phone products appearing in the category. I rebuilt the project so that the cleaning, validation and analysis steps are easier to follow and reproduce.
 
-The preserved scrape contains **1,960 rows**. A conservative scope rule flags **52 obvious non-phone listings**, leaving **1,908 smartphone-candidate listings** for analysis.
+![Market analysis dashboard](Market_Analysis_Dashboard.png)
 
-> This is listing-level marketplace data, not sales data. Listing share is not unit-sales share, revenue share, inventory share, conversion, or Nigerian smartphone market share.
+## What I worked with
 
-## Key Findings
+The original scrape contained **1,960 listings**.
 
-- **Samsung:** 44.2% of in-scope listings.
-- **Top five brands:** 76.9% of listings.
-- **Median advertised price:** ₦290,000.
-- **Largest price band:** Mid-range (₦150k–<₦300k), about 31.6%.
-- **Official-store listings:** only 8.3%.
-- **Listings with usable rating/review data:** 33.3%.
-- **Listings with positive advertised markdowns:** 60.6%; median markdown among discounted listings is 18.1%.
-- **Rows in repeated exact-title groups:** about 19.1%.
+After checking the product names, I found **52 obvious non-phone listings** such as tablets, headphones, calculators and accessories. I flagged those out of the smartphone analysis, leaving **1,908 smartphone listings**.
 
-See [reports/analysis_findings.md](reports/analysis_findings.md) for interpretation and caveats.
+One important thing about this dataset:
 
-## Architecture
+> It contains product listings, not sales transactions.
 
-```text
-Jumia Nigeria
-     |
-     v
-Python scraper
-     |
-     v
-Raw snapshot
-     |
-     v
-Cleaning + normalization
-     |
-     v
-Validation + tests
-     |
-     v
-Processed analytical dataset
-     |
-     +--> Python notebook analysis
-     +--> SQLite + SQL queries
-     +--> HTML dashboard
-```
+That means I can analyze things such as prices, listing presence, discounts and seller type, but I cannot use it to claim actual units sold, revenue or Nigerian smartphone market share.
 
-## Repository Structure
+## What I found
 
-```text
-src/
-  scraper.py
-  cleaning.py
-  validate.py
-  pipeline.py
-  analysis.py
-  build_sqlite.py
-  build_dashboard.py
-notebooks/
-  market_analysis.ipynb
-sql/
-  analysis_queries.sql
-dashboard/
-  jumia_market_dashboard.html
-reports/
-  analysis_findings.md
-docs/
-  data_dictionary.md
-  methodology.md
-tests/
-  test_cleaning.py
-```
+A few results stood out:
 
-The original project files are retained for history, but the folders above are the canonical portfolio implementation.
+- **Samsung makes up 44.2% of the smartphone listings** in the dataset.
+- The top five brands — Samsung, Xiaomi, Tecno, Infinix and Itel — make up about **76.9%** of all smartphone listings.
+- The overall **median advertised price is ₦290,000**.
+- The largest price group is the **₦150,000–₦300,000 range**, which contains about **31.6%** of listings.
+- Only about **8.3%** of listings are marked as official-store products.
+- About **60.6%** of listings show a discount compared with the displayed old price.
+- Among discounted listings, the median discount is about **18.1%**.
+- Only **33.3%** of listings have usable rating/review information.
+- About **19.1%** of rows belong to a product title that appears more than once.
 
-## Data Quality Improvements
+A more detailed write-up is available in [reports/analysis_findings.md](reports/analysis_findings.md).
 
-The refactor explicitly handles:
+## Brand price differences
 
-- numeric Naira price parsing;
-- brand aliases and spelling/casing normalization;
-- obvious non-phone category leakage;
-- 0–5 numeric rating extraction;
-- repair of the historical review-count format;
-- recalculated advertised markdown percentages;
-- invalid Jumia login URLs;
-- exact-title duplicate flags;
-- project-defined price segmentation.
-
-### Historical review-field repair
-
-The original scraper produced strings such as:
-
-```text
-4.1 out of 5861
-```
-
-This represents:
-
-```text
-rating = 4.1 out of 5
-review_count = 861
-```
-
-The new parser correctly separates the fixed scale from the review count and includes regression tests for this case.
-
-## Validation
-
-| Check | Result |
-|---|---|
-| Processed rows | Pass |
-| Numeric price coverage | 99.8% |
-| Rating bounds | Pass |
-| Non-negative reviews | Pass |
-| Discount bounds | Pass |
-| Brand coverage | 100% |
-| Parser/cleaning tests | 6 passed |
-
-## Analysis Highlights
-
-### Brand concentration
-
-Samsung accounts for **44.2%** of smartphone-candidate listings. Xiaomi follows at **11.9%**, Tecno at **7.7%**, Infinix at **6.6%**, and Itel at **6.5%**.
-
-### Price positioning
+The median advertised prices also show how differently the brands are positioned in this snapshot:
 
 | Brand | Median advertised price |
 |---|---:|
@@ -135,75 +48,189 @@ Samsung accounts for **44.2%** of smartphone-candidate listings. Xiaomi follows 
 | Google | ₦1,340,000 |
 | Apple | ₦2,650,000 |
 
-### Seller-channel structure
+These are listing prices from the scraped data, not average selling prices.
 
-Third-party listings account for about **91.7%** of the in-scope snapshot. Rating data is present on roughly **77.2%** of official-store listings versus **29.4%** of third-party listings. This is descriptive, not causal.
+## A data problem I had to fix
 
-## Run the Project
+The original scraper captured the rating and review count together.
 
-Install dependencies:
+For example:
+
+```text
+4.1 out of 5861
+```
+
+At first glance, that can look like 5,861 reviews.
+
+But the actual meaning is:
+
+```text
+rating = 4.1 out of 5
+review_count = 861
+```
+
+I updated the parser to separate the fixed `out of 5` part from the review count and added tests for cases like this.
+
+I also found that many of the old product URLs were either blank or pointed to Jumia's login page rather than the product itself. Instead of treating those as valid links, the cleaning step now marks them as missing.
+
+## Project workflow
+
+```text
+Jumia listings
+      ↓
+Python scraper
+      ↓
+Raw CSV
+      ↓
+Cleaning and normalization
+      ↓
+Data-quality checks
+      ↓
+Processed dataset
+      ↓
+Python analysis + SQL + dashboard
+```
+
+## Project structure
+
+```text
+src/
+  scraper.py
+  cleaning.py
+  validate.py
+  pipeline.py
+  analysis.py
+  build_sqlite.py
+  build_dashboard.py
+
+notebooks/
+  market_analysis.ipynb
+
+sql/
+  analysis_queries.sql
+
+dashboard/
+  jumia_market_dashboard.html
+
+reports/
+  analysis_findings.md
+
+docs/
+  data_dictionary.md
+  methodology.md
+
+tests/
+  test_cleaning.py
+```
+
+The older notebook and files are still in the repository for project history, but the folders above contain the cleaned-up version of the project.
+
+## Data checks
+
+The processing pipeline now checks the main fields before analysis.
+
+| Check | Result |
+|---|---|
+| Rows processed | Pass |
+| Numeric price coverage | 99.8% |
+| Rating values within 0–5 | Pass |
+| Review counts non-negative | Pass |
+| Discounts within valid range | Pass |
+| Brand coverage | 100% |
+| Cleaning/parser tests | 6 passed |
+
+## Official store vs third-party listings
+
+Third-party sellers make up about **91.7%** of the smartphone listings in this snapshot.
+
+Rating information is available for around **77.2%** of official-store listings compared with **29.4%** of third-party listings.
+
+I treat this as a descriptive difference only. The two groups contain different brands and products, so it would be misleading to claim that being an official store causes better ratings or more reviews.
+
+## Tools used
+
+- Python
+- Pandas
+- NumPy
+- Requests
+- BeautifulSoup
+- Matplotlib
+- SQLite / SQL
+- Pytest
+- Git and GitHub
+
+## How to run it
+
+Install the requirements:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Run tests:
+Run the tests:
 
 ```bash
 python -m pytest -q
 ```
 
-Process the historical snapshot:
+Process the historical dataset:
 
 ```bash
 PYTHONPATH=src python src/pipeline.py
 ```
 
-Build SQLite database:
+Build the SQLite database:
 
 ```bash
 PYTHONPATH=src python src/build_sqlite.py
 ```
 
-Run the queries in `sql/analysis_queries.sql`.
+The SQL queries are in:
 
-Build the dashboard:
+```text
+sql/analysis_queries.sql
+```
+
+Build the HTML dashboard:
 
 ```bash
 PYTHONPATH=src python src/build_dashboard.py
 ```
 
-Then open `dashboard/jumia_market_dashboard.html`.
+Then open:
 
-Run a fresh scrape:
+```text
+dashboard/jumia_market_dashboard.html
+```
+
+A fresh scrape can be run with:
 
 ```bash
 python src/scraper.py --pages 50 --delay 1
 ```
 
+Because websites change over time, the scraper selectors may need to be updated if Jumia changes its page structure.
+
 ## Limitations
 
-- single point-in-time snapshot;
-- no units sold, revenue, conversion, inventory, or national market-share data;
-- rating/review information is incomplete;
-- historical product URLs were captured incorrectly;
-- repeated titles can represent multiple offers, variants, or duplicate extraction and are therefore flagged rather than blindly removed.
+There are a few things I would not use this dataset to claim:
 
-## What This Demonstrates
+- actual sales volume;
+- revenue;
+- inventory levels;
+- conversion rates;
+- national smartphone market share.
 
-This project now shows a broader analyst workflow than a standard notebook-only EDA:
+The dataset is also a single snapshot, so it cannot show how prices or product availability changed over time.
 
-1. external data acquisition;
-2. raw-source preservation;
-3. cleaning and normalization;
-4. scope control;
-5. automated validation and tests;
-6. reusable KPI functions;
-7. exploratory analysis;
-8. SQL querying;
-9. dashboard reporting;
-10. documented assumptions and analytical limitations.
+Rating/review data is incomplete, and the historical product URLs were not captured correctly.
 
-## Next Milestone
+I kept repeated product titles in the dataset and flagged them instead of automatically deleting them because the same title may represent different sellers or offers.
 
-Repeated time-stamped snapshots would allow price-change, listing-churn, assortment, and model-lifecycle analysis.
+## What this project shows
+
+For me, the main value of this project is that it goes beyond making charts from a ready-made CSV.
+
+I had to collect the data, find problems in the original scrape, clean and validate the fields, decide what should and should not be included in the analysis, query the data with SQL and then present the results in a dashboard.
+
+A useful future extension would be to collect new snapshots over time so I could compare price changes and see which models enter or leave the marketplace.
