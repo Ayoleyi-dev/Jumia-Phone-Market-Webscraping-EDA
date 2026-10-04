@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jumia Nigeria Smartphone Market Intelligence</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+body{font-family:Segoe UI,Arial,sans-serif;background:#0b1020;color:#eef2ff;margin:0}
+.wrap{max-width:1200px;margin:auto;padding:28px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.card,.chart{background:#11182b;border:1px solid #24304d;border-radius:14px;padding:16px}
+.value{font-size:28px;font-weight:700}.label{color:#9aa6c4}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px;margin-top:16px}
+.chart{min-height:380px}
+</style>
+</head>
+<body><div class="wrap">
+<h1>Jumia Nigeria Smartphone Market Intelligence</h1>
+<p class="label">Point-in-time listing analysis — smartphone candidates only</p>
+<div class="kpis">
+<div class="card"><div class="label">Smartphone listings</div><div class="value">1,908</div></div>
+<div class="card"><div class="label">Brands</div><div class="value">35</div></div>
+<div class="card"><div class="label">Median advertised price</div><div class="value">₦290,000</div></div>
+<div class="card"><div class="label">Top-5 concentration</div><div class="value">76.9%</div></div>
+<div class="card"><div class="label">Official-store listings</div><div class="value">8.3%</div></div>
+<div class="card"><div class="label">Listings with ratings</div><div class="value">33.3%</div></div>
+</div>
+<div class="grid">
+<div id="brand" class="chart"></div><div id="segments" class="chart"></div>
+<div id="price" class="chart"></div><div id="channels" class="chart"></div>
+<div id="coverage" class="chart"></div>
+</div>
+<p class="label">Descriptive listing-level patterns only; not evidence of sales, inventory, conversion, or national market share.</p>
+</div>
+<script>
+const brands=["Samsung","Xiaomi","Tecno","Infinix","Itel","Oppo","Google","Poco","Realme","Huawei"];
+const shares=[44.2,11.9,7.7,6.6,6.5,2.8,2.4,1.9,1.9,1.9];
+const priceBrands=["Samsung","Xiaomi","Tecno","Infinix","Itel","Oppo","Google","Poco","Realme","Huawei","Vivo","Apple"];
+const prices=[385000,220000,179999,185000,128999,302000,1340000,190000,171500,132500,227000,2650000];
+const seg=["Budget","Mid-range","Upper mid-range","Premium"], segCount=[392,603,474,436];
+const channels=["Third-party","Official store"], channelShare=[91.7,8.3], coverage=[29.4,77.2];
+const layout=t=>({title:t,paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",font:{color:"#eef2ff"},xaxis:{gridcolor:"#24304d"},yaxis:{gridcolor:"#24304d"},showlegend:false});
+Plotly.newPlot("brand",[{type:"bar",x:shares,y:brands,orientation:"h"}],{...layout("Top brands by listing share"),yaxis:{autorange:"reversed"}});
+Plotly.newPlot("segments",[{type:"pie",labels:seg,values:segCount,hole:.5}],layout("Price-segment mix"));
+Plotly.newPlot("price",[{type:"bar",x:priceBrands,y:prices}],{...layout("Median advertised price by major brand"),xaxis:{tickangle:-35}});
+Plotly.newPlot("channels",[{type:"bar",x:channels,y:channelShare}],layout("Official vs third-party listing share"));
+Plotly.newPlot("coverage",[{type:"bar",x:channels,y:coverage}],layout("Rating-data coverage by channel"));
+</script></body></html>
