@@ -1,23 +1,36 @@
 # Methodology and Analytical Boundaries
 
-This project uses a point-in-time scrape of smartphone listings from Jumia Nigeria to study the composition of the online smartphone marketplace.
+The project uses a point-in-time Jumia Nigeria listing snapshot to study the online smartphone marketplace.
 
-## What the data supports
+## Scope
 
-The dataset can support analysis of:
+The source contains 1,960 rows. A conservative classification rule excludes only obvious non-phone rows such as tablets, headphones, calculators, and accessory-only listings. The current analytical population contains **1,908 smartphone-candidate rows**.
 
-- listing share by brand
-- advertised price distributions
-- discount patterns
-- official-store versus third-party listing presence
-- customer ratings and review counts where available
-- repeated/duplicate listing titles
-- price-segment composition
+## Supported analysis
 
-## What the data does not support
+The dataset supports:
 
-The dataset does **not** contain units sold, order value, revenue, stock levels, conversion rate, or true market share. Conclusions are therefore phrased as listing-level marketplace observations rather than claims about total Nigerian smartphone sales.
+- listing share by brand;
+- advertised price distributions;
+- project-defined price segments;
+- advertised markdown patterns;
+- official-store versus third-party presence;
+- rating/review coverage where available;
+- duplicate-title diagnostics;
+- descriptive marketplace analysis.
 
-## Data quality approach
+## Unsupported claims
 
-Extraction and transformation are separated. The raw snapshot is preserved unchanged. Cleaning code produces a processed analytical dataset and a validation layer checks price coverage, rating bounds, review counts, discount bounds, and brand coverage.
+The dataset does not contain units sold, revenue, stock, conversion, seller revenue, or national market share.
+
+## Data-quality approach
+
+Raw data is preserved separately from transformations. Cleaning, scope classification, validation, analysis, and reporting are separated into reusable modules.
+
+The historical scraper concatenated the fixed rating scale and review count. For example, `4.1 out of 5861` is repaired as rating 4.1/5 with 861 reviews. Invalid product/login URLs are treated as missing.
+
+Repeated exact titles are flagged rather than automatically deleted because they may represent different offers or sellers.
+
+## Statistical interpretation
+
+Engagement correlations are exploratory. Channel comparisons are descriptive because official-store and third-party listings differ in brand and product mix.
