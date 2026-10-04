@@ -4,13 +4,11 @@ I built this project to collect smartphone listings from Jumia Nigeria and use t
 
 It started as a web-scraping and EDA project, but while reviewing it I found several problems in the original data — especially with review counts, product links, duplicate listings and non-phone products appearing in the category. I rebuilt the project so that the cleaning, validation and analysis steps are easier to follow and reproduce.
 
-![Market analysis dashboard](Market_Analysis_Dashboard.png)
-
 ## What I worked with
 
 The original scrape contained **1,960 listings**.
 
-After checking the product names, I found **52 obvious non-phone listings** such as tablets, headphones, calculators and accessories. I flagged those out of the smartphone analysis, leaving **1,908 smartphone listings**.
+After checking the product names, I found **52 obvious non-phone listings** such as tablets, headphones, calculators and accessories. I excluded those from the smartphone analysis, leaving **1,908 smartphone listings**.
 
 One important thing about this dataset:
 
@@ -147,6 +145,16 @@ Rating information is available for around **77.2%** of official-store listings 
 
 I treat this as a descriptive difference only. The two groups contain different brands and products, so it would be misleading to claim that being an official store causes better ratings or more reviews.
 
+## Dashboard
+
+The rebuilt dashboard is generated from the processed dataset:
+
+```text
+dashboard/jumia_market_dashboard.html
+```
+
+It includes brand listing share, price-segment mix, median advertised prices, official-store share and rating-data coverage.
+
 ## Tools used
 
 - Python
@@ -173,6 +181,8 @@ Run the tests:
 python -m pytest -q
 ```
 
+### macOS / Linux
+
 Process the historical dataset:
 
 ```bash
@@ -185,22 +195,25 @@ Build the SQLite database:
 PYTHONPATH=src python src/build_sqlite.py
 ```
 
-The SQL queries are in:
-
-```text
-sql/analysis_queries.sql
-```
-
-Build the HTML dashboard:
+Build the dashboard:
 
 ```bash
 PYTHONPATH=src python src/build_dashboard.py
 ```
 
-Then open:
+### Windows PowerShell
+
+```powershell
+$env:PYTHONPATH="src"
+python src/pipeline.py
+python src/build_sqlite.py
+python src/build_dashboard.py
+```
+
+The SQL queries are in:
 
 ```text
-dashboard/jumia_market_dashboard.html
+sql/analysis_queries.sql
 ```
 
 A fresh scrape can be run with:
