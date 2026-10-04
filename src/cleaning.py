@@ -29,6 +29,9 @@ BRAND_ALIASES = {
     "nokia": "Nokia",
     "motorola": "Motorola",
     "oneplus": "OnePlus",
+    "moto": "Motorola",
+    "hauwei": "Huawei",
+    "spark": "Tecno",
     "oukitel": "Oukitel",
     "hmd": "HMD",
 }
@@ -59,13 +62,7 @@ def parse_rating(value) -> float:
 
 
 def parse_review_count(value) -> float:
-    """
-    Extract a review count.
-
-    Historical snapshots contain malformed values such as
-    '4.1 out of 5861'. In those strings, the final integer is the
-    best recoverable review-count field from the original scrape.
-    """
+    """Extract a review count, including repair of the historical scrape format."""
     if pd.isna(value):
         return np.nan
 
@@ -77,7 +74,8 @@ def parse_review_count(value) -> float:
     if paren:
         return float(paren.group(1).replace(",", ""))
 
-    legacy = re.search(r"out of\s*([\d,]+)\s*$", text, flags=re.I)
+    # Example: "4.1 out of 5861" = "4.1 out of 5" + 861 reviews.
+    legacy = re.search(r"out of\s*5([\d,]+)\s*$", text, flags=re.I)
     if legacy:
         return float(legacy.group(1).replace(",", ""))
 
@@ -104,6 +102,26 @@ def normalize_brand(phone_name, existing_brand=None) -> str | None:
         text = str(existing_brand).strip()
         return text.title() if text else None
     return None
+
+
+def is_smartphone_candidate(phone_name) -> bool:
+    """Flag obvious non-smartphone products that leaked into the category page."""
+    if phone_name is None or pd.isna(phone_name):
+        return False
+
+    text = str(phone_name)
+    obvious_non_phone = re.search(
+        r"\b(?:tablet|tab|pad|ipad)\b|headphone|calculator|Fire HD|S-Pen Case",
+        text,
+        flags=re.I,
+    )
+    if obvious_non_phone:
+        return False
+
+    if re.search(r"^Atouch\b.*10\.1", text, flags=re.I):
+        return False
+
+    return True
 
 
 def clean_product_link(value) -> str | None:
@@ -144,6 +162,7 @@ def clean_listings(df: pd.DataFrame) -> pd.DataFrame:
         out["Official Store"].astype(str).str.strip().str.lower().map({"yes": True, "no": False})
     )
     out["product_url"] = out["Product Link"].map(clean_product_link)
+    out["is_smartphone_candidate"] = out["Phone Name"].map(is_smartphone_candidate)
 
     valid_old = out["old_price_ngn"].gt(0)
     out["discount_pct"] = np.where(
@@ -173,11 +192,10 @@ def clean_listings(df: pd.DataFrame) -> pd.DataFrame:
         "review_count",
         "is_official_store",
         "product_url",
+        "is_smartphone_candidate",
         "duplicate_title",
     ]
-    out = out[keep].rename(columns={"Phone Name": "phone_name"})
-
-    return out
+    return out[keep].rename(columns={"Phone Name": "phone_name"})
 
 
 def clean_file(input_path: str | Path, output_path: str | Path) -> pd.DataFrame:
